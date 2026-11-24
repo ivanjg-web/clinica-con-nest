@@ -1,4 +1,11 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { MedicosService } from './medicos.service.js';
 
 @Controller('medicos')
-export class MedicosController {}
+export class MedicosController {
+  constructor(private readonly MedicosService: MedicosService) {}
+  @Get()
+  findAll() {
+    return this.MedicosService.findAll();
+  }
+}
