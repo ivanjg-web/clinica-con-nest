@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { Prisma } from '../generated/prisma/client.js';
+import { CreatePacienteDto } from './dto/create-paciente.dto.js';
+import { UpdatePacienteDto } from './dto/update-paciente.dto.js';
 
 @Injectable()
 export class PacientesService {
@@ -16,13 +18,42 @@ export class PacientesService {
     });
   }
 
-  create(data: Prisma.PatientCreateInput) {
+  create(data: CreatePacienteDto) {
+    const fechaNacimiento = new Date(data.birthDate);
+
+    if (fechaNacimiento > new Date()) {
+      throw new BadRequestException(
+        'La fecha de nacimiento no puede ser futura',
+      );
+    }
+
     return this.prisma.patient.create({
-      data,
+      data: {
+        ...data,
+        birthDate: fechaNacimiento,
+      },
     });
   }
 
-  update(id: number, data: Prisma.PatientUpdateInput) {
+  update(id: number, data: UpdatePacienteDto) {
+    if (data.birthDate) {
+      const fechaNacimiento = new Date(data.birthDate);
+
+      if (fechaNacimiento > new Date()) {
+        throw new BadRequestException(
+          'La fecha de nacimiento no puede ser futura',
+        );
+      }
+
+      return this.prisma.patient.update({
+        where: { id },
+        data: {
+          ...data,
+          birthDate: fechaNacimiento,
+        },
+      });
+    }
+
     return this.prisma.patient.update({
       where: { id },
       data,
