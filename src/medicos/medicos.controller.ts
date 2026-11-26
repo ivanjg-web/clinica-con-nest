@@ -9,6 +9,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { MedicosService } from './medicos.service.js';
+import { CreateMedicoDto } from './dto/create-medico.dto.js';
+import { UpdateMedicoDto } from './dto/update-medico.dto.js';
 
 @Controller('medicos')
 export class MedicosController {
@@ -31,19 +33,22 @@ export class MedicosController {
   }
 
   @Post()
-  create(@Body() body: any) {
-    return this.MedicosService.create(body);
+  create(@Body() createMedicoDto: CreateMedicoDto) {
+    return this.MedicosService.create(createMedicoDto);
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: any) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateMedicoDto: UpdateMedicoDto,
+  ) {
     const medico = await this.MedicosService.findOne(Number(id));
 
     if (!medico) {
       throw new NotFoundException(`Médico con id: ${id} no encontrado`);
     }
 
-    return this.MedicosService.update(Number(id), body);
+    return this.MedicosService.update(Number(id), updateMedicoDto);
   }
 
   @Delete(':id')
